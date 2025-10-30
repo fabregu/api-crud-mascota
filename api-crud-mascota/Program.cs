@@ -9,12 +9,25 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
 //Agregar Cors
-builder.Services.AddCors(options =>
+/*builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
         app => app.AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
+});*/
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:4200")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod()
+                                .AllowCredentials();
+                      });
 });
 
 //context
@@ -31,7 +44,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseCors("CorsPolicy");
+//app.UseCors("CorsPolicy");
+app.UseCors(MyAllowSpecificOrigins);
 
 app.MapControllers();
 
@@ -41,6 +55,4 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
-
 app.Run();
-
